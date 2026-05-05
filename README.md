@@ -1,6 +1,6 @@
 # sanq3
 
-I'm Yaoki Matsumoto, a student developer in Japan.
+I'm a student developer in Japan.
 
 I work mainly on iOS and web applications, and I use AI tools to support coding, debugging, documentation, and product iteration.
 
