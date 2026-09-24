@@ -1,0 +1,32 @@
+name: Karaoke Bilibili probe
+
+on:
+  push:
+    paths:
+      - "karaoke/probe_bilibili.py"
+      - ".github/workflows/karaoke-bilibili-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install yt-dlp
+        run: python -m pip install --upgrade yt-dlp
+      - name: Probe Bilibili search and known mirrors
+        run: python karaoke/probe_bilibili.py
+      - name: Upload probe result
+        uses: actions/upload-artifact@v4
+        with:
+          name: karaoke-bilibili-probe
+          path: karaoke/bilibili-output/probe.json
+          if-no-files-found: error
+          retention-days: 1
