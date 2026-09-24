@@ -47,7 +47,7 @@ def safe_get_json(url: str) -> tuple[dict | list | None, str | None]:
     try:
         response = requests.get(
             url,
-            timeout=15,
+            timeout=6,
             headers={"User-Agent": "Mozilla/5.0 karaoke-source-probe/1.0"},
         )
         response.raise_for_status()
