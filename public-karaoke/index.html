@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d0d12">
+  <meta name="description" content="韓国語歌詞・カタカナ・日本語訳を実際の曲と一緒に練習するスマホ向けプレイヤー">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com https://yt3.ggpht.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <title>韓国語カラオケ練習</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>韓国語カラオケ練習</h1>
+        <p>実際の曲に合わせて、原文・読み・意味が自動で進みます。</p>
+      </div>
+      <span class="privacy-badge">端末内保存</span>
+    </header>
+
+    <section class="panel selector" aria-label="曲の選択">
+      <label>曲を選ぶ
+        <select id="songSelect"></select>
+      </label>
+      <button id="helpButton" type="button" class="ghost" aria-label="使い方">?</button>
+    </section>
+
+    <section class="panel player-panel">
+      <div class="player-left">
+        <div class="video-wrap">
+          <div id="player" aria-label="YouTubeプレイヤー"></div>
+          <audio id="localAudio" controls playsinline preload="metadata" hidden aria-label="端末の音源プレイヤー"></audio>
+          <div id="playerCover" class="player-cover">
+            <div>
+              <strong id="coverTitle">動画を読み込んでいます</strong>
+              <p id="coverBody">歌詞は先に操作できます。</p>
+              <div class="fallbacks">
+                <a id="coverYoutube" class="button-link" target="_blank" rel="noopener noreferrer">YouTubeで開く</a>
+                <a id="coverBili" class="button-link" target="_blank" rel="noopener noreferrer" hidden>Bilibiliで開く</a>
+                <button id="coverLocal" type="button">端末の音源を使う</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="statusbar">
+          <span class="state"><span id="playerDot" class="dot"></span><span id="playerStatus">準備中</span></span>
+          <span id="timeDisplay" class="time">--:-- / --:--</span>
+        </div>
+      </div>
+      <div class="player-right">
+        <div class="now-card" aria-live="polite">
+          <div class="now-label">NOW <span id="lineCounter"></span></div>
+          <div id="nowOriginal" class="now-original">—</div>
+          <div id="nowReading" class="now-reading"></div>
+          <div id="nowMeaning" class="now-meaning"></div>
+        </div>
+        <div class="next-preview">次：<b id="nextOriginal">—</b></div>
+        <div class="transport">
+          <button id="back5" type="button" aria-label="5秒戻る">−5秒</button>
+          <button id="prevLine" type="button" aria-label="前の歌詞">前</button>
+          <button id="playButton" type="button" class="primary" aria-label="再生または一時停止">▶</button>
+          <button id="nextLine" type="button" aria-label="次の歌詞">次</button>
+          <button id="forward5" type="button" aria-label="5秒進む">+5秒</button>
+        </div>
+        <div class="mode-row" role="group" aria-label="追従方法">
+          <button id="autoMode" type="button" class="active" aria-pressed="true">自動追従</button>
+          <button id="followMode" type="button" aria-pressed="false">手動送り</button>
+          <button id="recordMode" type="button" class="warn" aria-pressed="false">行の時刻を直す</button>
+          <button id="recordHelp" type="button" class="ghost">直し方</button>
+        </div>
+        <p class="notice"><strong>待ち時間なし：</strong>歌詞時刻はページ内に埋め込み済みです。外部の「同期データ」を取得しません。全体のズレは下の±0.25秒、特定の行だけのズレは「行の時刻を直す」で補正できます。</p>
+      </div>
+    </section>
+
+    <details class="panel tools">
+      <summary>表示・タイミング設定</summary>
+      <div class="tool-grid">
+        <button id="toggleReading" type="button" aria-pressed="true">読み方</button>
+        <button id="toggleMeaning" type="button" aria-pressed="true">意味</button>
+        <button id="toggleScroll" type="button" aria-pressed="true">自動スクロール</button>
+        <a id="openYoutube" class="button-link" target="_blank" rel="noopener noreferrer">YouTube</a>
+        <a id="openBili" class="button-link" target="_blank" rel="noopener noreferrer" hidden>Bilibili</a>
+        <button id="localFileButton" type="button" class="wide">端末の音源を使う（アップロードなし）</button>
+        <input id="localFile" type="file" accept="audio/*,video/*" hidden>
+        <div class="offset-control wide">
+          <button id="offsetMinus" type="button" aria-label="歌詞を0.25秒遅くする">−0.25</button>
+          <output id="offsetOutput">+0.00秒</output>
+          <button id="offsetPlus" type="button" aria-label="歌詞を0.25秒早くする">+0.25</button>
+        </div>
+        <button id="exportTimings" type="button">時刻を書き出す</button>
+        <button id="importButton" type="button">時刻を読み込む</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+        <button id="clearTimings" type="button" class="danger">自分の修正をリセット</button>
+      </div>
+      <p class="tool-note"><strong id="timingStatus">内蔵タイミング</strong> · <span id="recordedCount">準備中</span>。自分で直した時刻、覚えた印、表示設定はこの端末のブラウザ内だけに保存されます。端末から選んだ音源ファイルはアップロードされません。</p>
+    </details>
+
+    <section>
+      <div class="lyrics-head">
+        <div>
+          <h2 id="sourceTitle">歌詞</h2>
+        </div>
+        <div class="toggle-row" role="group" aria-label="歌詞の表示切り替え">
+          <span aria-hidden="true">全行</span>
+        </div>
+      </div>
+      <div id="lyricList" class="lyric-list"></div>
+    </section>
+  </main>
+
+  <div id="recordBanner" class="record-banner" hidden>● 行の時刻を修正中：歌い始めで下の大きなボタン</div>
+  <nav class="sticky-follow" aria-label="歌詞送り">
+    <button id="stickyPrev" type="button" aria-label="前の歌詞">←</button>
+    <button id="nextLineButton" class="big-next" type="button"><span>次の歌詞</span><small id="nextLineText">—</small></button>
+    <button id="stickyNext" type="button" aria-label="次の歌詞">→</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="helpDialog" class="dialog-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <section class="dialog">
+      <h3 id="helpTitle">使い方</h3>
+      <div id="helpBody"></div>
+      <div class="dialog-actions"><button id="closeHelp" type="button" class="primary">閉じる</button></div>
+    </section>
+  </div>
+
+  <script src="songs.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
