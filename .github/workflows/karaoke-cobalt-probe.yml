@@ -1,0 +1,49 @@
+name: Karaoke self-hosted cobalt probe
+
+on:
+  push:
+    paths:
+      - "karaoke/probe_cobalt.py"
+      - ".github/workflows/karaoke-cobalt-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install client dependency
+        run: python -m pip install --upgrade requests
+      - name: Start isolated cobalt API
+        run: |
+          docker pull ghcr.io/imputnet/cobalt:latest
+          docker run --rm -d \
+            --name karaoke-cobalt \
+            -p 127.0.0.1:9000:9000 \
+            -e API_URL=http://127.0.0.1:9000/ \
+            -e API_LISTEN_ADDRESS=0.0.0.0 \
+            -e API_PORT=9000 \
+            ghcr.io/imputnet/cobalt:latest
+      - name: Probe public audio streams without retaining media
+        run: python karaoke/probe_cobalt.py
+      - name: Show cobalt logs on failure
+        if: failure()
+        run: docker logs karaoke-cobalt || true
+      - name: Stop cobalt
+        if: always()
+        run: docker stop karaoke-cobalt || true
+      - name: Upload probe result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: karaoke-cobalt-probe
+          path: karaoke/cobalt-probe.json
+          if-no-files-found: warn
+          retention-days: 1
