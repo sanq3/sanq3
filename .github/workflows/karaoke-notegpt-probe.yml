@@ -1,0 +1,35 @@
+name: Karaoke NoteGPT probe
+
+on:
+  push:
+    paths:
+      - "karaoke/probe_notegpt.py"
+      - ".github/workflows/karaoke-notegpt-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade playwright
+          python -m playwright install --with-deps chromium
+      - name: Generate one public transcript through the advertised no-sign-up tool
+        run: python karaoke/probe_notegpt.py
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: karaoke-notegpt-probe
+          path: karaoke/notegpt-output
+          if-no-files-found: warn
+          retention-days: 1
