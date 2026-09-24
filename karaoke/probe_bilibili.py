@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import uuid
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -26,11 +27,13 @@ KNOWN = {
 OUT = Path("karaoke/bilibili-output")
 OUT.mkdir(parents=True, exist_ok=True)
 
+BUVID3 = f"{uuid.uuid4()}infoc"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
     "Referer": "https://www.bilibili.com/",
     "Origin": "https://www.bilibili.com",
     "Accept": "application/json,text/plain,*/*",
+    "Cookie": f"buvid3={BUVID3}; CURRENT_FNVAL=4048; b_lsid={uuid.uuid4().hex[:16].upper()}",
 }
 
 
@@ -138,7 +141,7 @@ def resolve_bvid(bvid: str) -> dict[str, object]:
     return row
 
 
-result: dict[str, object] = {"searches": {}, "known": {}}
+result: dict[str, object] = {"searches": {}, "known": {}, "buvid3": BUVID3}
 
 for key, query in QUERIES.items():
     proc = run([
