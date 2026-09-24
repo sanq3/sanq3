@@ -4,6 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
+# Public-source probe only: no cookies, credentials, or account data.
 VIDEOS = {
     "heart-crack": "qNfdEAzXImE",
     "halo-error": "BEzKZ12Heto",
