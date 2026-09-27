@@ -1,0 +1,40 @@
+name: Temporary karaoke source download
+
+on:
+  push:
+    paths:
+      - ".github/workflows/tmp-karaoke-download.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  VIDEO_URL: "https://www.youtube.com/watch?v=e5xSS5nHzBA"
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install downloader
+        run: python -m pip install --upgrade yt-dlp
+      - name: Fetch metadata and audio for private analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tmp-source
+          yt-dlp --no-playlist --write-info-json --skip-download -o "tmp-source/source.%(ext)s" "$VIDEO_URL"
+          yt-dlp --no-playlist -f "bestaudio[ext=m4a]/bestaudio" -o "tmp-source/source.%(ext)s" "$VIDEO_URL"
+          ls -lah tmp-source
+      - name: Upload temporary analysis source
+        uses: actions/upload-artifact@v4
+        with:
+          name: temporary-karaoke-source
+          path: tmp-source/
+          retention-days: 1
+          if-no-files-found: error
