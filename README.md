@@ -6,14 +6,14 @@ I work mainly on iOS and web applications, and I use AI tools to support coding,
 
 ## Projects
 
-- [YomuTap](https://yomutap.com/)  
+- [YomuTap](https://apps.apple.com/jp/app/yomutap/id6799661558)  
   A language-learning tool for reading what you enjoy. Look up word meanings and pronunciations as you read, and save words to review later.
 
 - [Eminence](https://apps.apple.com/jp/app/id6751228416)  
-  An iPhone app for discovering, sharing, and saving words that motivate you.
+  An iOS app to help you get motivated.
 
 - [CreateLog](https://apps.apple.com/jp/app/id6755903579)  
-  An iPhone app for engineers to share projects, keep a work log, and ask for feedback.
+  An iOS app for recording and sharing creative work.
 
 ## Interests
 
